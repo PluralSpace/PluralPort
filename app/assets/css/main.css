@@ -1,0 +1,81 @@
+@import url("https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=Silkscreen:wght@400;700&display=swap");
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Silkscreen", "Courier New", monospace;
+  --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+
+  --color-bg: #0c0618;
+  --color-bg-2: #150d26;
+  --color-surface: #1e1533;
+  --color-surface-2: #2a1f42;
+  --color-surface-3: #3a2a5a;
+  --color-surface-4: #4a3575;
+  --color-border: #4a3575;
+
+  --color-text-heading: #ffffff;
+  --color-text: #e5e5e5;
+  --color-text-secondary: #d4d4d4;
+  --color-text-muted: #a3a3a3;
+  --color-text-faint: #737373;
+
+  --color-accent: #8b5cf6;
+  --color-accent-foreground: #ffffff;
+
+  --color-danger: #ef4444;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+
+  --radius-card: 1rem;
+  --radius-field: 0.625rem;
+  --radius-button: 0.625rem;
+}
+
+html, body {
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+@utility focus-accent-ring {
+  &:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-accent) 25%, transparent);
+  }
+}
+
+@utility shimmer {
+  position: relative;
+  overflow: hidden;
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent 0%, color-mix(in oklab, var(--color-accent) 14%, transparent) 50%, transparent 100%);
+    animation: shimmer 1.8s linear infinite;
+    pointer-events: none;
+  }
+}
+
+@keyframes shimmer {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@utility connector-fill {
+  background: linear-gradient(
+    90deg,
+    color-mix(in oklab, var(--color-success) 50%, transparent) 0%,
+    color-mix(in oklab, var(--color-success) 50%, transparent) 50%,
+    var(--color-border) 50%,
+    var(--color-border) 100%
+  );
+  background-size: 200% 100%;
+  background-position: 100% 0;
+  animation: connector-fill 0.7s ease-out forwards;
+}
+
+@keyframes connector-fill {
+  to { background-position: 0% 0; }
+}
