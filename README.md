@@ -4,8 +4,6 @@ PluralPort is an open source project that aims to provide a single place for the
 
 https://pluralport.com
 
-# Contributing
-
 ## Getting Started
 
 To get started with contributing to PluralPort, please follow these steps:
@@ -30,6 +28,12 @@ That's it! It's a nuxt 4 app so you can clone it, then simply run `npm install` 
 We expect all contributors to adhere to our code of conduct, which can be found in the CODE_OF_CONDUCT.md file in the 
 root of the repository. We are committed to creating a welcoming and inclusive environment for all contributors, and 
 we will not tolerate any form of harassment or discrimination.
+
+## Contributing Guidelines
+We welcome contributions to PluralPort! If you have an idea for a new feature, have found a bug, or want to help improve 
+the documentation, please feel free to submit a pull request. You can find more detailed contributing guidelines in the 
+CONTRIBUTING.md file in the root of the repository. Please make sure to read and follow these guidelines when submitting 
+your contributions.
 
 ## License
 

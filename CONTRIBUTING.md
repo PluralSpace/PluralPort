@@ -16,10 +16,21 @@ Before submitting a pull request, please make sure to follow these guidelines:
 If you find a bug in PluralPort, please submit a bug report by creating an issue in the GitHub repository. 
 Please include as much detail as possible, including steps to reproduce the bug, expected behavior, and actual behavior.
 
+Make sure the bug has not already been reported in the Issues section, and that it is with PluralPort and not with your
+setup or external platforms (like SimplyPlural or other platforms you might be using PluralPort with). If you are unsure, 
+please feel free to ask for help in the issue before submitting a bug report.
+
 ## Feature Requests
 
 If you have an idea for a new feature in PluralPort, please submit a feature request by creating an issue in the GitHub repository.
-Please include a clear description of the feature, why it would be useful, and any relevant examples or use cases. 
+Please include a clear description of the feature, why it would be useful, and any relevant examples or use cases.
+
+Make sure the feature has not already been requested in the Issues section! We always welcome new features (where appropriate)
+but want to avoid duplicate requests and want to make sure we are prioritizing the most requested/broadly useful features.
+
+Features that require any external API integrations or changes the core architecture or vision of PluralPort will
+likely be rejected. We want to keep PluralPort focused on being a simple, user-friendly tool for exporting data to 
+various standards, and we want to avoid adding features that would make it more complex or difficult to use.
 
 
 ## Where is the rest?
