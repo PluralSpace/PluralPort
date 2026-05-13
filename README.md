@@ -25,9 +25,10 @@ That's it! It's a nuxt 4 app so you can clone it, then simply run `npm install` 
 
 ## Code of Conduct
 
-We expect all contributors to adhere to our code of conduct, which can be found in the CODE_OF_CONDUCT.md file in the 
-root of the repository. We are committed to creating a welcoming and inclusive environment for all contributors, and 
-we will not tolerate any form of harassment or discrimination.
+Just be nice. I don't want to write a full code of conduct but I want to make it clear that we do not tolerate any form 
+of harassment, discrimination, or disrespectful behavior in our community. We want PluralPort to be a welcoming and 
+inclusive space for everyone, regardless of their background, identity, or beliefs. Please treat others with 
+kindness and respect, and if you see any behavior that violates this code of conduct, please report it to the maintainers.
 
 ## Contributing Guidelines
 We welcome contributions to PluralPort! If you have an idea for a new feature, have found a bug, or want to help improve 
