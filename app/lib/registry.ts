@@ -53,7 +53,7 @@ export const sources: SourceProvider[] = [
     {
         id: 'octocon',
         name: 'Octocon',
-        description: 'Coming soon',
+        description: 'Convert an Export',
         logo: '/logos/octocon.png',
         icon: Layers,
         available: false,
@@ -62,11 +62,11 @@ export const sources: SourceProvider[] = [
     {
         id: 'pluralspace',
         name: 'PluralSpace',
-        description: 'Coming soon',
+        description: 'Connect via API token',
         logo: '/logos/pluralspace.jpg',
         icon: Layers,
         available: false,
-        connectionType: 'oauth',
+        connectionType: 'token',
     },
 ]
 
