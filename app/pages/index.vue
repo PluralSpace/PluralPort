@@ -143,6 +143,42 @@
           </div>
         </template>
 
+        <template v-else-if="activeSource?.connectionType === 'file'">
+          <div class="flex flex-col gap-3 border-t border-border pt-5">
+            <p class="m-0 text-sm text-text-secondary">
+              Your export is read and converted entirely in your browser. The file never leaves your device.
+            </p>
+
+            <details class="group rounded-field border border-border bg-bg-2 open:border-accent/40">
+              <summary class="flex cursor-pointer list-none items-center gap-2 px-3.5 py-2.5 text-[13px] font-semibold text-text">
+                <ChevronRight class="size-4 text-text-secondary transition-transform group-open:rotate-90" />
+                <span>How to export from {{ activeSource?.name }}</span>
+              </summary>
+              <ol class="m-0 flex list-decimal flex-col gap-1.5 border-t border-border/60 px-3.5 py-3 pl-9 text-[13px] text-text-secondary marker:text-text-muted marker:tabular-nums">
+                <li>Open {{ activeSource?.name }}.</li>
+                <li>Go to <span class="text-text-heading">Settings</span>.</li>
+                <li>Open <span class="text-text-heading">Import / Export</span>.</li>
+                <li>Under Export, choose <span class="text-text-heading">Export your data to a JSON file</span>.</li>
+                <li>Save the file, then upload it below.</li>
+              </ol>
+            </details>
+
+            <label
+              class="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-field border border-dashed bg-bg-2 px-4 py-8 text-center transition hover:border-surface-4"
+              :class="sourceFile ? 'border-accent/50 bg-accent/5' : 'border-border'"
+            >
+              <input type="file" accept="application/json,.json" class="sr-only" @change="onFileChange" />
+              <Upload class="size-5" :class="sourceFile ? 'text-accent' : 'text-text-secondary'" />
+              <span class="text-[13px] font-semibold text-text-heading">
+                {{ sourceFile ? sourceFile.name : 'Choose an export file' }}
+              </span>
+              <span class="text-xs text-text-muted">
+                {{ sourceFile ? fileSizeLabel : `JSON exported from ${activeSource?.name}` }}
+              </span>
+            </label>
+          </div>
+        </template>
+
         <div
           v-if="authError"
           class="flex items-start gap-3 rounded-field border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger"
@@ -154,7 +190,7 @@
         <div class="flex flex-wrap justify-end gap-2">
           <button
             class="inline-flex items-center gap-2 whitespace-nowrap rounded-button border border-accent bg-accent px-4 py-2 text-sm font-medium text-accent-foreground transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
-            :disabled="!apiKey.trim() || verifying"
+            :disabled="!canContinue"
             @click="connectAndProceed"
           >
             <Loader2 v-if="verifying" class="size-4 animate-spin" />
@@ -216,7 +252,7 @@
           <div class="text-[10px] font-bold uppercase tracking-[0.2em] text-text-muted">Include</div>
           <div class="grid grid-cols-2 gap-2 max-sm:grid-cols-1">
             <label
-              v-for="opt in activeDestination.modules"
+              v-for="opt in availableModules"
               :key="opt.key"
               class="relative grid cursor-pointer grid-cols-[auto_1fr_auto] items-center gap-2.5 rounded-field border bg-bg-2 px-3 py-2.5 transition"
               :class="selectedModules.includes(opt.key)
@@ -436,11 +472,13 @@ import {
   Minus,
   Repeat,
   TriangleAlert,
+  Upload,
   X,
 } from 'lucide-vue-next'
 
 import { sources, destinations, findConverter } from '~/lib/registry'
 import { countAll, verifyToken } from '~/lib/sp-client'
+import { parseAmpersand, systemLabel, countAmpersand } from '~/lib/ampersand-client'
 import type { OPWarning, TaskState } from '~/lib/converters/types'
 useHead({
   title: 'PluralPort - Convert between plural system export formats',
@@ -465,9 +503,18 @@ const activeDestination = computed(() => destinations.find(d => d.id === destina
 const activeConverter = computed(() => findConverter(sourceId.value, destinationId.value))
 const converterAvailable = computed(() => activeConverter.value !== undefined)
 
+// A converter may only be able to fill a subset of the destination's
+// modules (e.g. Ampersand has no groups). Show just what it supports.
+const availableModules = computed(() => {
+  const dst = activeDestination.value
+  if (!dst) return []
+  const supported = activeConverter.value?.modules
+  return supported ? dst.modules.filter(m => supported.includes(m.key)) : dst.modules
+})
+
 const selectedModules = ref<string[]>([])
-watch(activeDestination, (dst) => {
-  selectedModules.value = dst ? dst.modules.map(m => m.key) : []
+watch(availableModules, (mods) => {
+  selectedModules.value = mods.map(m => m.key)
 }, { immediate: true })
 
 const apiKey = ref('')
@@ -477,22 +524,65 @@ const authError = ref('')
 const systemName = ref('')
 const userId = ref('')
 
+// File-source state (Ampersand and any future file importers).
+const sourceFile = ref<File | null>(null)
+const fileText = ref('')
+
+const canContinue = computed(() => {
+  if (verifying.value) return false
+  const t = activeSource.value?.connectionType
+  if (t === 'token') return !!apiKey.value.trim()
+  if (t === 'file') return !!sourceFile.value
+  return false
+})
+
+const fileSizeLabel = computed(() => {
+  const size = sourceFile.value?.size ?? 0
+  if (size < 1024) return `${size} B`
+  if (size < 1024 * 1024) return `${Math.round(size / 1024)} KB`
+  return `${(size / (1024 * 1024)).toFixed(1)} MB`
+})
+
+function onFileChange(e: Event) {
+  const input = e.target as HTMLInputElement
+  sourceFile.value = input.files?.[0] ?? null
+  authError.value = ''
+}
+
 async function connectAndProceed() {
   authError.value = ''
   verifying.value = true
   try {
-    if (sourceId.value === 'simply_plural') {
+    const connType = activeSource.value?.connectionType
+    if (connType === 'token') {
       const { userId: uid, systemName: name } = await verifyToken(apiKey.value)
       userId.value = uid
       systemName.value = name
       step.value = 'configure'
       fetchCounts()
+    } else if (connType === 'file') {
+      if (!sourceFile.value) throw new Error('Choose an export file first.')
+      const text = await sourceFile.value.text()
+      const parsed = parseAmpersand(text) // throws a user-facing message on a bad file
+      fileText.value = text
+      userId.value = ''
+      systemName.value = systemLabel(parsed)
+      step.value = 'configure'
+      applyLocalCounts(countAmpersand(parsed))
     }
   } catch (e) {
     authError.value = e instanceof Error ? e.message : 'Could not connect. Check your credentials.'
   } finally {
     verifying.value = false
   }
+}
+
+// File sources compute counts locally (no network), so populate the same
+// moduleCounts map the configure step reads.
+function applyLocalCounts(counts: Record<string, number>) {
+  const state: Record<string, CountState> = {}
+  for (const [key, value] of Object.entries(counts)) state[key] = { status: 'ok', value }
+  moduleCounts.value = state
 }
 
 type CountState = { status: 'loading' } | { status: 'ok'; value: number } | { status: 'error' }
@@ -563,8 +653,12 @@ async function runConversion() {
   try {
     // TODO: Known issue with client side fetching! 6 requests at a time and could run into OOM errors especially on mobile. Need to look at refactoring with possibly a streaming JSON converter or chunking requests
     const result = await converter.run(
-      apiKey.value,
-      userId.value,
+      {
+        token: apiKey.value,
+        userId: userId.value,
+        fileText: fileText.value,
+        fileName: sourceFile.value?.name,
+      },
       {
         selectedModules: selectedModules.value,
         rangeStart: rangeStart.value || undefined,
@@ -680,5 +774,7 @@ function reset() {
   outputJson.value = ''
   outputFilename.value = ''
   moduleCounts.value = {}
+  sourceFile.value = null
+  fileText.value = ''
 }
 </script>
