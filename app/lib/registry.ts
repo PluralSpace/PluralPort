@@ -1,15 +1,21 @@
 import type {Component} from 'vue'
 import {
+    Ampersand,
     BarChart3,
     Boxes,
     Clock,
     FolderTree,
+    Hash,
+    Image,
     Layers,
+    MessagesSquare,
+    SlidersHorizontal,
     StickyNote,
     User,
     VenetianMask,
 } from 'lucide-vue-next'
 import {converter as spToOpenPlural} from './converters/sp-to-op'
+import {converter as ampersandToOpenPlural} from './converters/ampersand-to-op'
 import type {Converter} from './converters/types'
 
 export type ConnectionType = 'token' | 'file' | 'oauth'
@@ -49,6 +55,15 @@ export const sources: SourceProvider[] = [
         icon: Boxes,
         available: true,
         connectionType: 'token',
+    },
+    {
+        id: 'ampersand',
+        name: 'Ampersand',
+        description: 'Convert an Export',
+        logo: '/logos/ampersand.png',
+        icon: Ampersand,
+        available: true,
+        connectionType: 'file',
     },
     {
         id: 'octocon',
@@ -109,10 +124,34 @@ export const destinations: DestinationFormat[] = [
                 icon: VenetianMask
             },
             {
+                key: 'tags',
+                label: 'Tags',
+                description: 'Mapped to taxonomy terms',
+                icon: Hash
+            },
+            {
+                key: 'custom_fields',
+                label: 'Custom fields',
+                description: 'Field definitions and values',
+                icon: SlidersHorizontal
+            },
+            {
+                key: 'boards',
+                label: 'Message board',
+                description: 'Board posts, replies, comments',
+                icon: MessagesSquare
+            },
+            {
                 key: 'polls',
                 label: 'Polls',
                 description: 'Stored in optional polls module',
                 icon: BarChart3
+            },
+            {
+                key: 'images',
+                label: 'Images',
+                description: 'Avatars and covers, inline',
+                icon: Image
             },
         ],
     },
@@ -120,6 +159,7 @@ export const destinations: DestinationFormat[] = [
 
 export const converters: Converter[] = [
     spToOpenPlural,
+    ampersandToOpenPlural,
 ]
 
 export function findConverter(sourceId: string, destinationId: string): Converter | undefined {

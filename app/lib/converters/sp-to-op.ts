@@ -113,7 +113,9 @@ function mapGroup(g: SpGroup, groupIdMap: Map<string, string>, systemOpId: strin
   }
 }
 
-export const runSpToOp: ConverterFn = async (token, userId, options, cb) => {
+export const runSpToOp: ConverterFn = async (input, options, cb) => {
+  const token = input.token ?? ''
+  const userId = input.userId ?? ''
   const { selectedModules, rangeStart, rangeEnd } = options
 
   const wantedTasks: TaskState[] = [
@@ -426,5 +428,6 @@ export const runSpToOp: ConverterFn = async (token, userId, options, cb) => {
 export const converter = defineConverter({
   sourceId: 'simply_plural',
   destinationId: 'openplural_v0.1',
+  modules: ['members', 'custom_fronts', 'groups', 'fronting', 'notes', 'polls'],
   run: runSpToOp,
 })

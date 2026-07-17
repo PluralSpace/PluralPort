@@ -32,9 +32,21 @@ export interface RunResult {
     filename: string
 }
 
+/**
+ * Everything a converter might need to reach its source. Token sources
+ * (Simply Plural) use `token`/`userId`; file sources (Ampersand) use
+ * `fileText`/`fileName`. A converter only reads the fields relevant to
+ * its own `sourceId`.
+ */
+export interface SourceInput {
+    token?: string
+    userId?: string
+    fileText?: string
+    fileName?: string
+}
+
 export type ConverterFn = (
-    token: string,
-    userId: string,
+    input: SourceInput,
     options: RunOptions,
     cb: RunCallbacks,
 ) => Promise<RunResult>
@@ -42,6 +54,12 @@ export type ConverterFn = (
 export interface Converter {
     sourceId: string
     destinationId: string
+    /**
+     * Destination module keys this converter can actually populate. The UI
+     * shows only these as toggles for the source. Undefined = every module
+     * the destination declares.
+     */
+    modules?: string[]
     run: ConverterFn
 }
 
