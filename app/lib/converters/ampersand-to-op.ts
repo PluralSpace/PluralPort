@@ -65,22 +65,25 @@ class AssetTable {
   private byUri = new Map<string, string>()
   readonly assets: object[] = []
 
-  /** Register a `data:` URI and return its asset id, or null if not one. */
-  ref(uri: unknown, kind: string, extra?: Record<string, unknown>): string | null {
-    if (typeof uri !== 'string' || !uri.startsWith('data:')) return null
-    const existing = this.byUri.get(uri)
+  /** Register a `data:` URI and return its asset id, or null if not one.
+   *  The bytes are self-contained, so they go in `data_uri` (inline) - not
+   *  `uri`, which the spec reserves for fragile external URLs. */
+  ref(dataUri: unknown, kind: string, extra?: Record<string, unknown>): string | null {
+    if (typeof dataUri !== 'string' || !dataUri.startsWith('data:')) return null
+    const existing = this.byUri.get(dataUri)
     if (existing) return existing
     const id = newUUID()
-    const mimeMatch = /^data:([\w/+.\-]+)[;,]/.exec(uri)
+    const mimeMatch = /^data:([\w/+.\-]+)[;,]/.exec(dataUri)
     this.assets.push({
       id,
       kind,
-      uri,
       mime_type: mimeMatch ? mimeMatch[1] : null,
+      uri: null,
+      data_uri: dataUri,
       source_refs: [sourceRef('assets')],
       extensions: extra ? { ampersand: extra } : {},
     })
-    this.byUri.set(uri, id)
+    this.byUri.set(dataUri, id)
     return id
   }
 }
